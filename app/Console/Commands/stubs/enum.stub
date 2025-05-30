@@ -1,0 +1,49 @@
+<?php
+
+namespace DummyNamespace;
+
+enum DummyClass: ReturnType
+{
+    // case ACTIVE = 1;
+
+    /**
+     * Get Text of Enum
+     *
+     * @return string
+     */
+    public function text(): string
+    {
+        return match($this)
+        {
+            // self::ACTIVE => "Aktif"
+        };
+    }
+
+    /**
+     * Get Code of Enum
+     *
+     * @return string
+     */
+    public function code():string
+    {
+        return match($this)
+        {
+            // self::ACTIVE => "ACTIVE"
+        };
+    }
+
+    /**
+     * Get enum from name
+     *
+     * @return self
+     */
+    public static function fromName(string $name): self
+    {
+        foreach (self::cases() as $status) {
+            if( $name === $status->name ){
+                return $status;
+            }
+        }
+        throw new \ValueError("$name is not a valid backing value for enum " . self::class );
+    }
+}
