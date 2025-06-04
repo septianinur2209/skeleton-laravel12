@@ -48,6 +48,13 @@ class AuthRepository
 
         }
 
+        createLog([
+            'action'        => 'Login',
+            'modul'         => 'Auth',
+            'submodul'      => 'Login',
+            'description'   => 'Login User: ' . $find->name
+        ]);
+
         // Return successful response with JWT token
         return $this->respondWithToken($token, $find);
     }
@@ -68,6 +75,14 @@ class AuthRepository
     // Log out user and invalidate JWT token
     public function logout()
     {
+
+        createLog([
+            'action'        => 'Logout',
+            'modul'         => 'Auth',
+            'submodul'      => 'Logout',
+            'description'   => 'Logout User: ' . user()->name
+        ]);
+
         auth()->logout();
         JWTAuth::invalidate(JWTAuth::parseToken());
 
@@ -89,6 +104,13 @@ class AuthRepository
                 'name'      => $request->name,
                 'email'     => $request->email,
                 'password'  => bcrypt($request->password),
+            ]);
+
+            createLog([
+                'action'        => 'Register',
+                'modul'         => 'Auth',
+                'submodul'      => 'Register',
+                'description'   => 'Register User: ' . $request->name
             ]);
 
             // Return success response after user creation

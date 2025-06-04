@@ -129,7 +129,16 @@ class ProfileRepository
 
             // Update the model if there are any fields to update
             if(count($input) > 0) {
+
                 $data->update($input);
+
+                createLog([
+                    'action'        => 'Update',
+                    'modul'         => 'Profile',
+                    'submodul'      => 'Update',
+                    'description'   => 'Update Profile: ' . $data->name
+                ]);
+
             }
 
         } catch (\Exception $e) {
@@ -205,6 +214,13 @@ class ProfileRepository
                     'picture' => $path,
                 ]);
 
+                createLog([
+                    'action'        => 'Update Photo',
+                    'modul'         => 'Profile',
+                    'submodul'      => 'Update Photo',
+                    'description'   => 'Update Photo Profile: ' . $data->name
+                ]);
+
             } else {
                 
                 // Return validation error if no valid image uploaded
@@ -271,6 +287,13 @@ class ProfileRepository
                     'password'  => bcrypt($request->password) 
                 ]
             );
+
+            createLog([
+                'action'        => 'Update Password',
+                'modul'         => 'Profile',
+                'submodul'      => 'Update Password',
+                'description'   => 'Update Password Profile: ' . $data->name
+            ]);
 
         } catch (\Exception $e) {
 

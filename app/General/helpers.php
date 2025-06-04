@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Log\LogActivity;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -95,5 +96,18 @@ if (!function_exists('hardDecode')) {
     function hardDecode($param)
     {
         return base64_decode(base64_decode(base64_decode(base64_decode($param))));
+    }
+}
+
+if (!function_exists('createLog')) {
+    function createLog($data)
+    {
+        return LogActivity::create([
+            'action' => $data->action,
+            'modul' => $data->modul,
+            'submodul' => $data->submodul,
+            'user' => user()->id,
+            'description' => $data->description,
+        ]);
     }
 }
