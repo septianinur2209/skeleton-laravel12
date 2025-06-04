@@ -315,7 +315,16 @@ class UserRepository
             }
 
             if(count($input) > 0) {
+
                 $data = $this->model->create($input);
+
+                createLog([
+                    'action'        => 'Insert',
+                    'modul'         => 'User',
+                    'submodul'      => 'Insert',
+                    'description'   => 'Insert User: ' . $data->name
+                ]);
+
             }
 
         } catch (\Exception $e) {
@@ -397,7 +406,16 @@ class UserRepository
             }
 
             if(count($input) > 0) {
+
                 $data->update($input);
+
+                createLog([
+                    'action'        => 'Update',
+                    'modul'         => 'User',
+                    'submodul'      => 'Update',
+                    'description'   => 'Update User: ' . $data->name
+                ]);
+
             }
 
         } catch (\Exception $e) {
@@ -455,6 +473,13 @@ class UserRepository
                 ]
             );
 
+            createLog([
+                'action'        => 'Update Status',
+                'modul'         => 'User',
+                'submodul'      => 'Update Status',
+                'description'   => 'Update Status User: ' . $data->name
+            ]);
+
         } catch (\Exception $e) {
 
             Log::info('Setting - User - updateStatus: ' . $e->getMessage());
@@ -502,7 +527,16 @@ class UserRepository
 
             }
 
+            $name = $data->name;
+
             $data->delete();
+
+            createLog([
+                'action'        => 'Delete',
+                'modul'         => 'User',
+                'submodul'      => 'Delete',
+                'description'   => 'Delete User: ' . $name
+            ]);
 
         } catch (\Exception $e) {
 

@@ -13,6 +13,7 @@ class AuthRepository
 {
     use MainTrait;
 
+    // Handle user login attempt with email and password
     public function login($request)
     {
         
@@ -21,9 +22,11 @@ class AuthRepository
             'password' => $request->password,
         ];
 
+        // Check if user exists by email
         $find = User::where('email', $request->email)->first();
 
         if (!$find) {
+            // Return 404 if user not found
             return [
                 404,
                 [
@@ -32,8 +35,10 @@ class AuthRepository
             ];
         };
 
+        // Attempt to create JWT token with credentials
         if (! $token = auth()->attempt($credentials)) {
 
+            // Return 401 if authentication fails
             return [
                 401,
                 [
@@ -43,9 +48,18 @@ class AuthRepository
 
         }
 
+        createLog([
+            'action'        => 'Login',
+            'modul'         => 'Auth',
+            'submodul'      => 'Login',
+            'description'   => 'Login User: ' . $find->name
+        ]);
+
+        // Return successful response with JWT token
         return $this->respondWithToken($token, $find);
     }
 
+    // Get currently authenticated user info
     public function me()
     {
         
@@ -53,13 +67,22 @@ class AuthRepository
             200, 
             [
                 'message'   => 'Success',
-                'data'      => auth()->user(),
+                'data'      => user(),
             ]
         ];
     }
 
+    // Log out user and invalidate JWT token
     public function logout()
     {
+
+        createLog([
+            'action'        => 'Logout',
+            'modul'         => 'Auth',
+            'submodul'      => 'Logout',
+            'description'   => 'Logout User: ' . user()->name
+        ]);
+
         auth()->logout();
         JWTAuth::invalidate(JWTAuth::parseToken());
 
@@ -72,6 +95,7 @@ class AuthRepository
         ];
     }
 
+    // Register a new user with provided data
     public function register($request)
     {
         try {
@@ -82,6 +106,14 @@ class AuthRepository
                 'password'  => bcrypt($request->password),
             ]);
 
+            createLog([
+                'action'        => 'Register',
+                'modul'         => 'Auth',
+                'submodul'      => 'Register',
+                'description'   => 'Register User: ' . $request->name
+            ]);
+
+            // Return success response after user creation
             return [
                 200,
                 [
@@ -91,6 +123,7 @@ class AuthRepository
             ];
         } catch (Exception $e) {
 
+            // Log error and return failure response
             Log::info('Auth - Register - Error : ' . $e->getMessage());
             
             return [
@@ -104,6 +137,7 @@ class AuthRepository
         }
     }
 
+    // Prepare the response containing JWT token and metadata
     protected function respondWithToken($token, $find)
     {
         $data = [
@@ -123,6 +157,7 @@ class AuthRepository
 
     }
 
+    // Send a password reset link email to user
     public function sendResetLinkEmail($request)
     {
 
@@ -132,6 +167,7 @@ class AuthRepository
 
         if ($status === Password::RESET_LINK_SENT) {
 
+            // Return success if email was sent
             return [
                 200, 
                 [
@@ -141,6 +177,7 @@ class AuthRepository
 
         } else {
 
+            // Return error if email sending failed
             return [
                 500,
                 [
@@ -152,12 +189,14 @@ class AuthRepository
 
     }
     
+    // Reset user password using token and new password
     public function resetPassword($request)
     {
 
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
+                // Update the user's password
                 $user->forceFill([
                     'password' => bcrypt($password)
                 ])->save();
@@ -166,6 +205,7 @@ class AuthRepository
 
         if ($status === Password::PASSWORD_RESET) {
 
+            // Return success if password reset succeeded
             return [
                 200, 
                 [
@@ -175,6 +215,7 @@ class AuthRepository
 
         } else {
 
+            // Return error if password reset failed
             return [
                 500,
                 [
